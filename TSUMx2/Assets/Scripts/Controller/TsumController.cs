@@ -15,23 +15,10 @@ public class TsumController : MonoBehaviour {
 	}
 
     public void Dispose() {
-        //StartCoroutine(PlayParticleAndDestroy());
         var particle = GetComponentInChildren<ParticleSystem>();
         if (particle != null) {
             particle.Play();
             Destroy(this.gameObject, particle.main.duration);
         }
-    }
-
-    IEnumerator PlayParticleAndDestroy() {
-        var particle = GetComponentInChildren<ParticleSystem>();
-        if (particle != null) {
-            particle.Play();
-            while(particle.isPlaying) {
-                yield return new WaitForSeconds(0.001f);
-            }
-        }
-        
-        DestroyImmediate(this.gameObject);
     }
 }

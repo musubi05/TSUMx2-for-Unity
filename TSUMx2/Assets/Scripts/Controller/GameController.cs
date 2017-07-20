@@ -3,9 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameController : MonoBehaviour {
-    
+
     [SerializeField]
-    private GameObject[] _tsumPrefabs;
+    public PrefabModel Prefab;
+
+    [SerializeField]
+    public ScoreModel Score;
+
+    [SerializeField]
+    public HUDController HUD;
 
     [SerializeField]
     public int DropTsumCnt = 55;
@@ -13,13 +19,15 @@ public class GameController : MonoBehaviour {
     [SerializeField]
     public GameObject LabelTsumTraceCnt;
 
+    public const int TimeLimitSecond = 60;
+    public const float DropTsumHeight = 6.0f;
 
-    const float StartHeight = 6.0f;
     private bool _isClicked = false;
-
     private List<GameObject> _clickedTsums;
     private GameObject _lastClickedTsum;
     private TextMesh _txtTsumTraceCnt;
+
+    private float time;
 
     /// <summary>
     /// Use this for initialization
@@ -30,12 +38,19 @@ public class GameController : MonoBehaviour {
         StartCoroutine(DropTsum(DropTsumCnt));
         _txtTsumTraceCnt = LabelTsumTraceCnt.GetComponent<TextMesh>();
         _txtTsumTraceCnt.text = "";
+
+        time = TimeLimitSecond;
 	}
 
     /// <summary>
     /// Update is called once per frame
     /// </summary>
     void Update () {
+        time -= Time.deltaTime;
+
+        HUD.SetCountdown((int)time);
+        
+        // TSUM Click/Drag Detection
 		if(Input.GetMouseButton(0)) {
             if (_isClicked == false) {
                 OnDragStart();
@@ -51,10 +66,10 @@ public class GameController : MonoBehaviour {
 
     IEnumerator DropTsum(int cnt) {
         for(int i = 0; i < cnt; i++) {
-            var tsum = Instantiate(_tsumPrefabs[Random.Range(0, _tsumPrefabs.Length)]);
+            var tsum = Instantiate(Prefab.Tsums[Random.Range(0, Prefab.Tsums.Length)]);
             tsum.transform.position = new Vector3(
                 Random.Range(-2.0f, 2.0f),
-                StartHeight,
+                DropTsumHeight,
                 1f
                 );
             tsum.transform.eulerAngles = new Vector3(
@@ -73,7 +88,7 @@ public class GameController : MonoBehaviour {
             return;
         }
         // TSUM Detection
-        foreach(var tsumPrefab in _tsumPrefabs) {
+        foreach(var tsumPrefab in Prefab.Tsums) {
             // Detected!!
             if(clickedObject.name.Contains(tsumPrefab.name)) {
                 AddClickedTsums(clickedObject);
