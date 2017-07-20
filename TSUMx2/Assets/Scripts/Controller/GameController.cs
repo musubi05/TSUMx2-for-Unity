@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameController : MonoBehaviour {
-
+    
     [SerializeField]
-    private GameObject _tsumPrefab;
-
-    [SerializeField]
-    private Sprite[] _tsumSprites;
+    private GameObject[] _tsumPrefabs;
 
     [SerializeField]
     public int DropTsumCnt = 55;
@@ -48,7 +45,7 @@ public class GameController : MonoBehaviour {
 
     IEnumerator DropTsum(int cnt) {
         for(int i = 0; i < cnt; i++) {
-            var tsum = Instantiate(_tsumPrefab);
+            var tsum = Instantiate(_tsumPrefabs[Random.Range(0, _tsumPrefabs.Length)]);
             tsum.transform.position = new Vector2(
                 Random.Range(-2.0f, 2.0f),
                 StartHeight);
@@ -57,28 +54,27 @@ public class GameController : MonoBehaviour {
                 0,
                 Random.Range(-40, 40));
 
-            var tsumTexture = tsum.GetComponent<SpriteRenderer>();
-            tsumTexture.sprite = _tsumSprites[Random.Range(0, _tsumSprites.Length)];
-
             yield return new WaitForSeconds(0.01f);
         }
     }
 
     private void OnDragStart() {
-        // Tsum Detection
+        // Object Detection
         var clickedObject = GetClickedObject();
         if(clickedObject == null) {
             return;
         }
+        // TSUM Detection
+        foreach(var tsumPrefab in _tsumPrefabs) {
+            // Detected!!
+            if(clickedObject.name.Contains(tsumPrefab.name)) {
+                AddClickedTsums(clickedObject);
+                _lastClickedTsum = clickedObject;
 
-        if (!clickedObject.name.Contains(_tsumPrefab.name)) {
-            return;
+                _isClicked = true;
+                return;
+            }
         }
-        _clickedTsums.Clear();
-        AddClickedTsums(clickedObject);
-        _lastClickedTsum = clickedObject;
-
-        _isClicked = true;
     }
 
     private void OnDragFinish() {
