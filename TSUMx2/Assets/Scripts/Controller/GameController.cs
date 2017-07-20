@@ -52,9 +52,11 @@ public class GameController : MonoBehaviour {
     IEnumerator DropTsum(int cnt) {
         for(int i = 0; i < cnt; i++) {
             var tsum = Instantiate(_tsumPrefabs[Random.Range(0, _tsumPrefabs.Length)]);
-            tsum.transform.position = new Vector2(
+            tsum.transform.position = new Vector3(
                 Random.Range(-2.0f, 2.0f),
-                StartHeight);
+                StartHeight,
+                1f
+                );
             tsum.transform.eulerAngles = new Vector3(
                 0,
                 0,
