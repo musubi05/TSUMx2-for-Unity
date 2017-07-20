@@ -10,12 +10,16 @@ public class GameController : MonoBehaviour {
     [SerializeField]
     public int DropTsumCnt = 55;
 
+    [SerializeField]
+    public GameObject LabelTsumTraceCnt;
+
 
     const float StartHeight = 6.0f;
     private bool _isClicked = false;
 
     private List<GameObject> _clickedTsums;
     private GameObject _lastClickedTsum;
+    private TextMesh _txtTsumTraceCnt;
 
     /// <summary>
     /// Use this for initialization
@@ -24,6 +28,8 @@ public class GameController : MonoBehaviour {
         _clickedTsums = new List<GameObject>();
 
         StartCoroutine(DropTsum(DropTsumCnt));
+        _txtTsumTraceCnt = LabelTsumTraceCnt.GetComponent<TextMesh>();
+        _txtTsumTraceCnt.text = "";
 	}
 
     /// <summary>
@@ -70,8 +76,8 @@ public class GameController : MonoBehaviour {
             if(clickedObject.name.Contains(tsumPrefab.name)) {
                 AddClickedTsums(clickedObject);
                 _lastClickedTsum = clickedObject;
-
                 _isClicked = true;
+                ShowTraceCnt();
                 return;
             }
         }
@@ -96,6 +102,7 @@ public class GameController : MonoBehaviour {
         _isClicked = false;
         _clickedTsums.Clear();
         _lastClickedTsum = null;
+        _txtTsumTraceCnt.text = "";
     }
 
     private void OnDragging() {
@@ -111,12 +118,13 @@ public class GameController : MonoBehaviour {
          // defferent type
         var clickedSprite = _clickedTsums[0].GetComponent<SpriteRenderer>().sprite;
         if(clickedObject.GetComponent<SpriteRenderer>().sprite != clickedSprite) {
-            return;
+            return; 
         }
         // back track
         if(_clickedTsums.Count >= 2 && _clickedTsums[_clickedTsums.Count - 2] == clickedObject) {
             RemoveClickedTsums(_lastClickedTsum);
             _lastClickedTsum = _clickedTsums[_clickedTsums.Count - 1];
+            ShowTraceCnt();
             return;
         }
         // already exist
@@ -137,9 +145,9 @@ public class GameController : MonoBehaviour {
             return;
         }
 
-        
         AddClickedTsums(clickedObject);
         _lastClickedTsum = clickedObject;
+        ShowTraceCnt();
     }
 
     private GameObject GetClickedObject() {
@@ -170,4 +178,14 @@ public class GameController : MonoBehaviour {
             renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, a);
         }
     } 
+    private void ShowTraceCnt() {
+        _txtTsumTraceCnt.text = _clickedTsums.Count.ToString();
+
+        var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        LabelTsumTraceCnt.transform.position = new Vector3(
+            mousePosition.x,
+            mousePosition.y,
+            0
+            );
+    }
 }
