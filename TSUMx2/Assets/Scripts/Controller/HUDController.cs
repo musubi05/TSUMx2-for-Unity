@@ -42,12 +42,15 @@ public class HUDController : MonoBehaviour {
         if(time < 0) {
             return;
         }
-        if(time == 0) {
-            LabelCenter.text = "FINISH !!";
-        }
         else if(time <= 5) {
             LabelCenter.text = time.ToString();
         }
         LabelTime.text = time.ToString();
+    }
+
+    public IEnumerator DisplayLabelCenterPeriod(string txt, float period) {
+        LabelCenter.text = txt;
+        yield return new WaitForSeconds(period);
+        LabelCenter.text = "";
     }
 }
