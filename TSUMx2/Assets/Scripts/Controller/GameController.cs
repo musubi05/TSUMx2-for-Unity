@@ -47,7 +47,6 @@ public class GameController : MonoBehaviour {
     /// </summary>
     void Update () {
         time -= Time.deltaTime;
-
         HUD.SetCountdown((int)time);
         
         // TSUM Click/Drag Detection
@@ -63,7 +62,10 @@ public class GameController : MonoBehaviour {
             OnDragFinish();
         }
 	}
-
+    /// <summary>
+    /// TSUMs Drop Method (
+    /// </summary>
+    /// <param name="cnt">The number of tsum</param>
     IEnumerator DropTsum(int cnt) {
         for(int i = 0; i < cnt; i++) {
             var tsum = Instantiate(Prefab.Tsums[Random.Range(0, Prefab.Tsums.Length)]);
@@ -81,6 +83,9 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Drag Start Method
+    /// </summary>
     private void OnDragStart() {
         // Object Detection
         var clickedObject = GetClickedObject();
@@ -104,6 +109,8 @@ public class GameController : MonoBehaviour {
         // Dispose clicked TSUM 
         if(_clickedTsums.Count >= 3) {
             StartCoroutine(DropTsum(_clickedTsums.Count));
+            Score.AddScore(_clickedTsums[0].GetComponent<SpriteRenderer>().sprite, _clickedTsums.Count);
+
             foreach(var tsum in _clickedTsums) {
                 //Destroy(tsum);
                 tsum.GetComponent<TsumController>().Dispose();

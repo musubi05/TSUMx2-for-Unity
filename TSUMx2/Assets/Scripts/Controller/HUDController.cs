@@ -6,6 +6,12 @@ using UnityEngine.UI;
 public class HUDController : MonoBehaviour {
 
     [SerializeField]
+    public PrefabModel Prefab;
+
+    [SerializeField]
+    public ScoreModel Score;
+
+    [SerializeField]
     public Text LabelCenter;
 
     [SerializeField]
@@ -13,12 +19,17 @@ public class HUDController : MonoBehaviour {
 
     [SerializeField]
     public Text LabelTime;
+    
 
 	// Use this for initialization
 	void Start () {
         LabelCenter.text = "";
         LabelScore.text = "0";
         LabelTime.text = GameController.TimeLimitSecond.ToString();
+       
+        Score.ChangeTotalScore += () => {
+            LabelScore.text = Score.TotalScore.ToString();
+        };
 	}
 	
 	// Update is called once per frame
@@ -27,6 +38,7 @@ public class HUDController : MonoBehaviour {
 	}
 
     public void SetCountdown(int time) {
+
         if(time < 0) {
             return;
         }
@@ -38,10 +50,4 @@ public class HUDController : MonoBehaviour {
         }
         LabelTime.text = time.ToString();
     }
-
-    public void SetScore(int score) {
-        LabelScore.text = score.ToString();
-    }
-
-
 }
