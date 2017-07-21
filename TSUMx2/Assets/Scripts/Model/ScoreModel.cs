@@ -9,6 +9,13 @@ public class ScoreModel : MonoBehaviour {
     public event ChangeTotalScoreEventHandler ChangeTotalScore;
     public event AddedBonusScoreEventHandler AddedBonusScore;
 
+    // Singleton
+    public static ScoreModel Instance {
+        get;
+        private set;
+    }
+
+    #region TotalScore
     public int TotalScore {
         get {
             return _totalScore;
@@ -22,7 +29,9 @@ public class ScoreModel : MonoBehaviour {
         }
     }
     private int _totalScore;
+    #endregion
 
+    #region BonusScore
     public int BonusScore {
         get {
             return _bonusScore;
@@ -37,26 +46,41 @@ public class ScoreModel : MonoBehaviour {
         }
     }
     private int _bonusScore;
-
+#endregion
 
     private PrefabModel _prefabModel;
-    private Dictionary<Sprite, int> _tsumsScore;
+    public Dictionary<Sprite, int> TsumsScore {
+        get;
+        private set;
+    }
+
+    private void Awake() {
+        // Singleton
+        if(Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else {
+            Destroy(this.gameObject);
+        }
+    }
+
 
     // Use this for initialization
     void Start () {
-        _tsumsScore = new Dictionary<Sprite, int>();
+        TsumsScore = new Dictionary<Sprite, int>();
         _prefabModel = GetComponentInParent<PrefabModel>();
         
         // None TSUM
         if(_prefabModel.Tsums.Length == 0) {
-            _tsumsScore.Add(null, 0);
+            TsumsScore.Add(null, 0);
         }
         else {
             foreach(var tsum in _prefabModel.Tsums) {
                 var sprite = tsum.GetComponent<SpriteRenderer>().sprite;
 
-                if (!_tsumsScore.ContainsKey(sprite)) {
-                    _tsumsScore.Add(sprite, 0);
+                if (!TsumsScore.ContainsKey(sprite)) {
+                    TsumsScore.Add(sprite, 0);
                 }
             }
         }
@@ -69,20 +93,20 @@ public class ScoreModel : MonoBehaviour {
 	}
 
     void ResetScore() {
-        List<Sprite> keys = new List<Sprite>(_tsumsScore.Keys);
+        List<Sprite> keys = new List<Sprite>(TsumsScore.Keys);
         foreach(Sprite key in keys) {
-            _tsumsScore[key] = 0;
+            TsumsScore[key] = 0;
         }
         TotalScore = 0;
     }
 
     public void AddScore(Sprite tsumSprite, int deletedCnt) {
         TotalScore += deletedCnt;
-        if(_tsumsScore.ContainsKey(tsumSprite)) {
-            _tsumsScore[tsumSprite] += deletedCnt;
+        if(TsumsScore.ContainsKey(tsumSprite)) {
+            TsumsScore[tsumSprite] += deletedCnt;
         }
         else {
-            _tsumsScore.Add(tsumSprite, deletedCnt);
+            TsumsScore.Add(tsumSprite, deletedCnt);
         }
         // Add Bonus Score
         AddBonusScore(deletedCnt);
@@ -91,7 +115,7 @@ public class ScoreModel : MonoBehaviour {
     private void AddBonusScore(int deletedCnt) {
         int bonusScore = 0;
 
-        if(deletedCnt <= 3) {
+        if(deletedCnt <= GameController.MimTsumDelete) {
             return;
         }
 
@@ -100,7 +124,7 @@ public class ScoreModel : MonoBehaviour {
             bonusScore = deletedCnt * 10;
         }
         else {
-            bonusScore = deletedCnt * (deletedCnt - 3);
+            bonusScore = deletedCnt * (deletedCnt - GameController.MimTsumDelete);
         }
         // Add Score
         BonusScore += bonusScore;

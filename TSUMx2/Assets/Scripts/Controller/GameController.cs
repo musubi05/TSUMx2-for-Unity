@@ -9,9 +9,6 @@ public class GameController : MonoBehaviour {
     public PrefabModel Prefab;
 
     [SerializeField]
-    public ScoreModel Score;
-
-    [SerializeField]
     public HUDController HUD;
 
     [SerializeField]
@@ -20,6 +17,7 @@ public class GameController : MonoBehaviour {
     [SerializeField]
     public GameObject LabelTsumTraceCnt;
 
+    public const int MimTsumDelete = 3;
     public const int TimeLimitSecond = 60;
     public const float DropTsumHeight = 6.0f;
 
@@ -115,10 +113,10 @@ public class GameController : MonoBehaviour {
     }
 
     private void OnDragFinish() {
-        // Dispose clicked TSUM 
-        if(_clickedTsums.Count >= 3) {
+        // Delete clicked TSUM 
+        if(_clickedTsums.Count >= MimTsumDelete) {
             StartCoroutine(DropTsum(_clickedTsums.Count));
-            Score.AddScore(_clickedTsums[0].GetComponent<SpriteRenderer>().sprite, _clickedTsums.Count);
+            ScoreModel.Instance.AddScore(_clickedTsums[0].GetComponent<SpriteRenderer>().sprite, _clickedTsums.Count);
 
             foreach(var tsum in _clickedTsums) {
                 //Destroy(tsum);
@@ -197,6 +195,7 @@ public class GameController : MonoBehaviour {
         // add list
         _clickedTsums.Add(tsum);
     }
+
     private void RemoveClickedTsums(GameObject tsum) {
         if(_clickedTsums.Contains(tsum)) {
             // change transparent value

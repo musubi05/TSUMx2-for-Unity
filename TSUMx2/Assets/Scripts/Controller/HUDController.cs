@@ -9,9 +9,6 @@ public class HUDController : MonoBehaviour {
     public PrefabModel Prefab;
 
     [SerializeField]
-    public ScoreModel Score;
-
-    [SerializeField]
     public Text LabelCenter;
 
     [SerializeField]
@@ -27,8 +24,8 @@ public class HUDController : MonoBehaviour {
         LabelScore.text = "0";
         LabelTime.text = GameController.TimeLimitSecond.ToString();
        
-        Score.ChangeTotalScore += () => {
-            LabelScore.text = Score.TotalScore.ToString();
+        ScoreModel.Instance.ChangeTotalScore += () => {
+            LabelScore.text = ScoreModel.Instance.TotalScore.ToString();
         };
 	}
 	
