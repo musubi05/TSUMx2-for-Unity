@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PrefabModel))]
 public class ScoreModel : MonoBehaviour {
 
     public delegate void ChangeTotalScoreEventHandler();
@@ -46,13 +47,16 @@ public class ScoreModel : MonoBehaviour {
         }
     }
     private int _bonusScore;
-#endregion
+    #endregion
 
-    private PrefabModel _prefabModel;
+    #region TumsScore
     public Dictionary<Sprite, int> TsumsScore {
         get;
         private set;
     }
+    #endregion
+
+    private PrefabModel _prefabModel;
 
     private void Awake() {
         // Singleton
@@ -61,22 +65,23 @@ public class ScoreModel : MonoBehaviour {
             DontDestroyOnLoad(this.gameObject);
         }
         else {
+            // Reset Events
+            Instance.ChangeTotalScore = null;
+            Instance.AddedBonusScore = null;
+            // Destroy Me
             Destroy(this.gameObject);
+            return;
         }
-    }
 
-
-    // Use this for initialization
-    void Start () {
         TsumsScore = new Dictionary<Sprite, int>();
-        _prefabModel = GetComponentInParent<PrefabModel>();
-        
-        // None TSUM
-        if(_prefabModel.Tsums.Length == 0) {
+        _prefabModel = GetComponent<PrefabModel>();
+
+        // Initialze TSUM score list
+        if (_prefabModel.Tsums.Length == 0) {
             TsumsScore.Add(null, 0);
         }
         else {
-            foreach(var tsum in _prefabModel.Tsums) {
+            foreach (var tsum in _prefabModel.Tsums) {
                 var sprite = tsum.GetComponent<SpriteRenderer>().sprite;
 
                 if (!TsumsScore.ContainsKey(sprite)) {
@@ -84,7 +89,11 @@ public class ScoreModel : MonoBehaviour {
                 }
             }
         }
-        ResetScore();
+    }
+
+    // Use this for initialization
+    void Start () {
+
 	}
 	
 	// Update is called once per frame
@@ -92,12 +101,13 @@ public class ScoreModel : MonoBehaviour {
 		// nop
 	}
 
-    void ResetScore() {
+    public void ResetScore() {
         List<Sprite> keys = new List<Sprite>(TsumsScore.Keys);
         foreach(Sprite key in keys) {
             TsumsScore[key] = 0;
         }
         TotalScore = 0;
+        BonusScore = 0;
     }
 
     public void AddScore(Sprite tsumSprite, int deletedCnt) {

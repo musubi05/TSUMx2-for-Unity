@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(TextMesh))]
 public class GameController : MonoBehaviour {
 
     [SerializeField]
@@ -21,8 +22,14 @@ public class GameController : MonoBehaviour {
     public const int TimeLimitSecond = 60;
     public const float DropTsumHeight = 6.0f;
 
+    enum State {
+        NotStarted,
+        Started,
+        Finished
+    }
+
     private bool _isClicked = false;
-    private bool _isGameFinished = false;
+    private State _state;
     private List<GameObject> _clickedTsums;
     private GameObject _lastClickedTsum;
     private TextMesh _txtTsumTraceCnt;
@@ -35,21 +42,37 @@ public class GameController : MonoBehaviour {
     void Start () {
         _clickedTsums = new List<GameObject>();
 
+        // TSUM Drop
         StartCoroutine(DropTsum(DropTsumCnt));
+
+        // Initialize TraceCnt Text
         _txtTsumTraceCnt = LabelTsumTraceCnt.GetComponent<TextMesh>();
         _txtTsumTraceCnt.text = "";
 
+        // Initialize
         time = TimeLimitSecond;
-	}
+        ScoreModel.Instance.ResetScore();
+
+        // Start Countdown
+        _state = State.NotStarted;
+        StartCoroutine(StartCountdown(3));
+    }
 
     /// <summary>
     /// Update is called once per frame
     /// </summary>
     void Update () {
+
+        if(_state != State.Started) {
+            return;
+        }
+
         time -= Time.deltaTime;
+        HUD.ChangeTime((int)time);
+
         // GAME OVER
-        if((int)time <= 0) {
-            _isGameFinished = true;
+        if ((int)time <= 0) {
+            _state = State.Finished;
             StartCoroutine(ChangeResultScene());
         }
         else {
@@ -57,7 +80,7 @@ public class GameController : MonoBehaviour {
         }
 
         // TSUM Click/Drag Detection
-        if (_isGameFinished == false && Input.GetMouseButton(0)) {
+        if (Input.GetMouseButton(0)) {
             if (_isClicked == false) {
                 OnDragStart();
             }
@@ -65,10 +88,11 @@ public class GameController : MonoBehaviour {
                 OnDragging();
             }
         }
-        else if(_isGameFinished == false && Input.GetMouseButtonUp(0) && _isClicked == true) {
+        else if(Input.GetMouseButtonUp(0) && _isClicked == true) {
             OnDragFinish();
         }
 	}
+
     /// <summary>
     /// TSUMs Drop Method (
     /// </summary>
@@ -88,6 +112,15 @@ public class GameController : MonoBehaviour {
 
             yield return new WaitForSeconds(0.01f);
         }
+    }
+
+    private IEnumerator StartCountdown(int cnt) {
+        for(int i = cnt; i > 0; i--) {
+            HUD.SetCountdown(i);
+            yield return new WaitForSeconds(1f);
+        }
+        StartCoroutine(HUD.DisplayLabelCenterPeriod("START", 1f));
+        _state = State.Started;
     }
 
     /// <summary>
@@ -130,6 +163,7 @@ public class GameController : MonoBehaviour {
             }
         }
         
+        // Reset
         _isClicked = false;
         _clickedTsums.Clear();
         _lastClickedTsum = null;
@@ -223,6 +257,6 @@ public class GameController : MonoBehaviour {
 
     private IEnumerator ChangeResultScene() {
         yield return HUD.DisplayLabelCenterPeriod("FINISH", 3f);
-        SceneManager.LoadSceneAsync("result");
+        TSUMx2.SceneManager.LoadResultScene();
     }
 }

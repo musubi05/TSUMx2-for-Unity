@@ -16,22 +16,21 @@ public class HUDController : CanvasMonoBehaviour {
 
     [SerializeField]
     public Text LabelTime;
-
-    private CanvasScaler _canvasScaler;
     
 	// Use this for initialization
-	void Start () {
-        _canvasScaler = this.GetComponent<CanvasScaler>();
-        AdjustCanvasScale(_canvasScaler);
+	void Awake () {
+        AdjustCanvasScale();
 
         LabelCenter.text = "";
         LabelScore.text = "0";
         LabelTime.text = GameController.TimeLimitSecond.ToString();
-       
+	}
+
+    void Start() {
         ScoreModel.Instance.ChangeTotalScore += () => {
             LabelScore.text = ScoreModel.Instance.TotalScore.ToString();
         };
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -39,14 +38,18 @@ public class HUDController : CanvasMonoBehaviour {
 	}
 
     public void SetCountdown(int time) {
-
         if(time < 0) {
             return;
         }
         else if(time <= 5) {
             LabelCenter.text = time.ToString();
         }
-        LabelTime.text = time.ToString();
+    }
+
+    public void ChangeTime(int time) {
+        if (time >= 0) {
+            LabelTime.text = time.ToString();
+        }
     }
 
     public IEnumerator DisplayLabelCenterPeriod(string txt, float period) {

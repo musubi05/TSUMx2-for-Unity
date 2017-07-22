@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class ResultController : CanvasMonoBehaviour {
+public class TitleController : CanvasMonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -15,11 +14,7 @@ public class ResultController : CanvasMonoBehaviour {
 		
 	}
 
-    public void OnClickBtnContinue() {
+    public void OnClickBtnStart() {
         TSUMx2.SceneManager.LoadGameScene();
-    }
-
-    public void OnClickBtnExit() {
-        TSUMx2.SceneManager.LoadTitleScene();
     }
 }
