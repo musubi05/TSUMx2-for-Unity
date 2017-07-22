@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HUDController : MonoBehaviour {
+public class HUDController : CanvasMonoBehaviour {
 
     [SerializeField]
     public PrefabModel Prefab;
@@ -16,10 +16,14 @@ public class HUDController : MonoBehaviour {
 
     [SerializeField]
     public Text LabelTime;
-    
 
+    private CanvasScaler _canvasScaler;
+    
 	// Use this for initialization
 	void Start () {
+        _canvasScaler = this.GetComponent<CanvasScaler>();
+        AdjustCanvasScale(_canvasScaler);
+
         LabelCenter.text = "";
         LabelScore.text = "0";
         LabelTime.text = GameController.TimeLimitSecond.ToString();
