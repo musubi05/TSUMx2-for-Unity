@@ -28,13 +28,13 @@ public class Fade : MonoBehaviour
 {
 	IFade fade;
 
-	void Start ()
+	void Awake ()
 	{
 		Init ();
 		fade.Range = cutoutRange;
 	}
 
-	float cutoutRange = 1;
+	float cutoutRange;
 
 	void Init ()
 	{
@@ -96,7 +96,12 @@ public class Fade : MonoBehaviour
 		return FadeOut (time, null);
 	}
 
-	public Coroutine FadeIn (float time, System.Action action)
+    public Coroutine FadeOut (float time, float startRange) {
+        cutoutRange = startRange;
+        fade.Range = cutoutRange;
+        return FadeOut(time);
+    }
+    public Coroutine FadeIn (float time, System.Action action)
 	{
 		StopAllCoroutines ();
 		return StartCoroutine (FadeinCoroutine (time, action));

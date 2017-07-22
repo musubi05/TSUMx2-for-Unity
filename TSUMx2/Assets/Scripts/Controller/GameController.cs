@@ -104,7 +104,7 @@ public class GameController : MonoBehaviour {
         for(int i = 0; i < cnt; i++) {
             var tsum = Instantiate(Prefab.Tsums[Random.Range(0, Prefab.Tsums.Length)]);
             tsum.transform.position = new Vector3(
-                Random.Range(-2.0f, 2.0f),
+                Random.Range(-1.5f, 1.5f),
                 DropTsumHeight,
                 1f
                 );
@@ -118,7 +118,7 @@ public class GameController : MonoBehaviour {
     }
 
     private IEnumerator StartCountdown(int cnt) {
-        yield return Fade.FadeOut(1f);
+        yield return Fade.FadeOut(1f, 1);
 
         for(int i = cnt; i > 0; i--) {
             HUD.SetCountdown(i);

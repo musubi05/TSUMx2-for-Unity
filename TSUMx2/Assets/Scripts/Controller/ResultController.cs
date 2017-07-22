@@ -11,7 +11,7 @@ public class ResultController : CanvasMonoBehaviour {
 	// Use this for initialization
 	void Start () {
         AdjustCanvasScale();
-        Fade.FadeOut(0.5f);
+        Fade.FadeOut(0.5f, 1);
 	}
 	
 	// Update is called once per frame
