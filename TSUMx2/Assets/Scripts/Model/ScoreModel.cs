@@ -77,16 +77,11 @@ public class ScoreModel : MonoBehaviour {
         _prefabModel = GetComponent<PrefabModel>();
 
         // Initialze TSUM score list
-        if (_prefabModel.Tsums.Length == 0) {
-            TsumsScore.Add(null, 0);
-        }
-        else {
-            foreach (var tsum in _prefabModel.Tsums) {
-                var sprite = tsum.GetComponent<SpriteRenderer>().sprite;
+        foreach (var tsum in _prefabModel.Tsums) {
+            var sprite = tsum.GetComponent<SpriteRenderer>().sprite;
 
-                if (!TsumsScore.ContainsKey(sprite)) {
-                    TsumsScore.Add(sprite, 0);
-                }
+            if (!TsumsScore.ContainsKey(sprite)) {
+                TsumsScore.Add(sprite, 0);
             }
         }
     }
@@ -101,6 +96,9 @@ public class ScoreModel : MonoBehaviour {
 		// nop
 	}
 
+    /// <summary>
+    /// Reset all score
+    /// </summary>
     public void ResetScore() {
         List<Sprite> keys = new List<Sprite>(TsumsScore.Keys);
         foreach(Sprite key in keys) {
@@ -110,6 +108,11 @@ public class ScoreModel : MonoBehaviour {
         BonusScore = 0;
     }
 
+    /// <summary>
+    /// Add score
+    /// </summary>
+    /// <param name="tsumSprite">deleted TSUM's sprite</param>
+    /// <param name="deletedCnt">The number of deleted TSUMs</param>
     public void AddScore(Sprite tsumSprite, int deletedCnt) {
         TotalScore += deletedCnt;
         if(TsumsScore.ContainsKey(tsumSprite)) {
@@ -122,6 +125,10 @@ public class ScoreModel : MonoBehaviour {
         AddBonusScore(deletedCnt);
     }
 
+    /// <summary>
+    /// Add bonus score
+    /// </summary>
+    /// <param name="deletedCnt">The number of deleted TSUMs</param>
     private void AddBonusScore(int deletedCnt) {
         int bonusScore = 0;
 

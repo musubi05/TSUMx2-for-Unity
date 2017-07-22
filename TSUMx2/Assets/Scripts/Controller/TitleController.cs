@@ -5,12 +5,12 @@ using UnityEngine;
 public class TitleController : CanvasMonoBehaviour {
 
     [SerializeField]
-    public Fade Fade;
+    private Fade _fade;
 
 	// Use this for initialization
 	void Start () {
         AdjustCanvasScale();
-        Fade.FadeOut(0.5f, 1);
+        _fade.FadeOut(0.5f, 1);
 	}
 	
 	// Update is called once per frame
@@ -18,8 +18,11 @@ public class TitleController : CanvasMonoBehaviour {
 		
 	}
 
+    /// <summary>
+    /// BtnStart clicked method
+    /// </summary>
     public void OnClickBtnStart() {
-        Fade.FadeIn(0.5f, () => {
+        _fade.FadeIn(0.5f, () => {
             TSUMx2.SceneManager.LoadGameScene();
         });
     }
