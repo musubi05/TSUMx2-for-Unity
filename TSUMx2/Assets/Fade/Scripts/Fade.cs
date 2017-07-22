@@ -34,7 +34,7 @@ public class Fade : MonoBehaviour
 		fade.Range = cutoutRange;
 	}
 
-	float cutoutRange;
+	float cutoutRange = 1;
 
 	void Init ()
 	{

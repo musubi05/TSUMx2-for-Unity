@@ -5,9 +5,13 @@ using UnityEngine.UI;
 
 public class ResultController : CanvasMonoBehaviour {
 
+    [SerializeField]
+    public Fade Fade;
+
 	// Use this for initialization
 	void Start () {
         AdjustCanvasScale();
+        Fade.FadeOut(0.5f);
 	}
 	
 	// Update is called once per frame
@@ -16,10 +20,14 @@ public class ResultController : CanvasMonoBehaviour {
 	}
 
     public void OnClickBtnContinue() {
-        TSUMx2.SceneManager.LoadGameScene();
+        Fade.FadeIn(0.5f, () => {
+            TSUMx2.SceneManager.LoadGameScene();
+        });
     }
 
     public void OnClickBtnExit() {
-        TSUMx2.SceneManager.LoadTitleScene();
+        Fade.FadeIn(0.5f, () => {
+            TSUMx2.SceneManager.LoadTitleScene();
+        });
     }
 }

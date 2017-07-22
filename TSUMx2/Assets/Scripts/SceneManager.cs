@@ -2,16 +2,16 @@
     public class SceneManager {
 
         public static void LoadTitleScene() {
-            UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("title");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("title");
         }
 
         public static void LoadGameScene() {
-            UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("main");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("main");
 
         }
 
         public static void LoadResultScene() {
-            UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("result");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("result");
 
         }
     }

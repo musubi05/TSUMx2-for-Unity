@@ -4,10 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class HUDController : CanvasMonoBehaviour {
-
-    [SerializeField]
-    public PrefabModel Prefab;
-
+    
     [SerializeField]
     public Text LabelCenter;
 

@@ -18,6 +18,9 @@ public class GameController : MonoBehaviour {
     [SerializeField]
     public GameObject LabelTsumTraceCnt;
 
+    [SerializeField]
+    public Fade Fade;
+    
     public const int MimTsumDelete = 3;
     public const int TimeLimitSecond = 60;
     public const float DropTsumHeight = 6.0f;
@@ -115,6 +118,8 @@ public class GameController : MonoBehaviour {
     }
 
     private IEnumerator StartCountdown(int cnt) {
+        yield return Fade.FadeOut(1f);
+
         for(int i = cnt; i > 0; i--) {
             HUD.SetCountdown(i);
             yield return new WaitForSeconds(1f);
@@ -256,7 +261,9 @@ public class GameController : MonoBehaviour {
     }
 
     private IEnumerator ChangeResultScene() {
-        yield return HUD.DisplayLabelCenterPeriod("FINISH", 3f);
+        yield return HUD.DisplayLabelCenterPeriod("FINISH", 2f);
+        yield return Fade.FadeIn(0.5f);
+
         TSUMx2.SceneManager.LoadResultScene();
     }
 }

@@ -11,3 +11,4 @@ TSUMx2 for Unity
 - [KY Magic Effects Free](https://www.assetstore.unity3d.com/jp/#!/content/21927)
 - [OutlineTextMesh](http://stereoarts.jp)
 - [FadeCamera2](https://github.com/tsubaki/FadeCamera2/)
+- [For You (Transition Mask Image)](http://4you.bz/)

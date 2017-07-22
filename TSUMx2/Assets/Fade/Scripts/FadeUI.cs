@@ -57,4 +57,9 @@ public class FadeUI : MonoBehaviour, IFade
 		mask.enabled = false;
 		mask.enabled = true;
 	}
+
+    private void Awake() {
+        UpdateMaskCutout(cutoutRange);
+    }
+
 }

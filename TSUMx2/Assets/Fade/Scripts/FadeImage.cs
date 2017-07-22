@@ -42,13 +42,37 @@ public class FadeImage : UnityEngine.UI.Graphic , IFade
 		}
 	}
 
-	protected override void Start ()
+    private Image _inheritingFlickerImage = null;
+
+    protected override void Awake() {
+        base.Awake();
+
+        var imageObject = this.transform.Find("Image");
+        if(imageObject == null) {
+            return;
+        }
+        _inheritingFlickerImage = this.transform.Find("Image").gameObject.GetComponent<Image>();
+       
+        // Enable inheriting flicker image
+        _inheritingFlickerImage.gameObject.SetActive(true);
+        _inheritingFlickerImage.color = new Color(
+            this.color.r,
+            this.color.g,
+            this.color.b,
+            cutoutRange
+            );
+    }
+
+    protected override void Start ()
 	{
 		base.Start ();
 		UpdateMaskTexture (maskTexture);
+        if(_inheritingFlickerImage != null) {
+            _inheritingFlickerImage.gameObject.SetActive(false);
+        }
 	}
 
-	private void UpdateMaskCutout (float range)
+    private void UpdateMaskCutout (float range)
 	{
 		enabled = true;
 		material.SetFloat ("_Range", 1 - range);
