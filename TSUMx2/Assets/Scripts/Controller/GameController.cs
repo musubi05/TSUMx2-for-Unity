@@ -7,25 +7,25 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour {
 
     [SerializeField]
-    public PrefabModel Prefab;
+    private PrefabModel _prefab;
 
     [SerializeField]
-    public HUDController HUD;
+    private HUDController _hud;
 
     [SerializeField]
-    public int DropTsumCnt = 55;
+    private int _dropTsumCnt = 55;
 
     [SerializeField]
-    public GameObject LabelTsumTraceCnt;
+    private GameObject _labelTsumTraceCnt;
 
     [SerializeField]
-    public Fade Fade;
+    private Fade _fade;
     
     public const int MimTsumDelete = 3;
     public const int TimeLimitSecond = 60;
-    public const float DropTsumHeight = 6.0f;
+    private const float _dropTsumHeight = 6.0f;
 
-    enum State {
+    private enum State {
         NotStarted,
         Started,
         Finished
@@ -37,7 +37,7 @@ public class GameController : MonoBehaviour {
     private GameObject _lastClickedTsum;
     private TextMesh _txtTsumTraceCnt;
 
-    private float time;
+    private float _time;
 
     /// <summary>
     /// Use this for initialization
@@ -46,19 +46,19 @@ public class GameController : MonoBehaviour {
         _clickedTsums = new List<GameObject>();
 
         // TSUM Drop
-        StartCoroutine(DropTsum(DropTsumCnt));
+        StartCoroutine(DropTsum(_dropTsumCnt));
 
         // Initialize TraceCnt Text
-        _txtTsumTraceCnt = LabelTsumTraceCnt.GetComponent<TextMesh>();
+        _txtTsumTraceCnt = _labelTsumTraceCnt.GetComponent<TextMesh>();
         _txtTsumTraceCnt.text = "";
 
         // Initialize
-        time = TimeLimitSecond;
+        _time = TimeLimitSecond;
         ScoreModel.Instance.ResetScore();
 
         // Start Countdown
         _state = State.NotStarted;
-        StartCoroutine(StartCountdown(3));
+        StartCoroutine(GameStart(3));
     }
 
     /// <summary>
@@ -70,16 +70,16 @@ public class GameController : MonoBehaviour {
             return;
         }
 
-        time -= Time.deltaTime;
-        HUD.ChangeTime((int)time);
+        _time -= Time.deltaTime;
+        _hud.ChangeTime((int)_time);
 
         // GAME OVER
-        if ((int)time <= 0) {
+        if ((int)_time <= 0) {
             _state = State.Finished;
             StartCoroutine(ChangeResultScene());
         }
         else {
-            HUD.SetCountdown((int)time);
+            _hud.DisplayLabelCenter((int)_time);
         }
 
         // TSUM Click/Drag Detection
@@ -97,48 +97,53 @@ public class GameController : MonoBehaviour {
 	}
 
     /// <summary>
-    /// TSUMs Drop Method (
+    /// TSUMs drop method
     /// </summary>
-    /// <param name="cnt">The number of tsum</param>
+    /// <param name="cnt">The number of TSUMs</param>
     IEnumerator DropTsum(int cnt) {
         for(int i = 0; i < cnt; i++) {
-            var tsum = Instantiate(Prefab.Tsums[Random.Range(0, Prefab.Tsums.Length)]);
+            var tsum = Instantiate(_prefab.Tsums[Random.Range(0, _prefab.Tsums.Length)]);
             tsum.transform.position = new Vector3(
                 Random.Range(-1.5f, 1.5f),
-                DropTsumHeight,
+                _dropTsumHeight,
                 1f
                 );
             tsum.transform.eulerAngles = new Vector3(
                 0,
                 0,
-                Random.Range(-40, 40));
+                Random.Range(-40, 40)
+                );
 
             yield return new WaitForSeconds(0.01f);
         }
     }
 
-    private IEnumerator StartCountdown(int cnt) {
-        yield return Fade.FadeOut(1f, 1);
+    /// <summary>
+    /// FadeIn display and start countdown
+    /// </summary>
+    /// <param name="cnt">Countdown seconds</param>
+    private IEnumerator GameStart(int cnt) {
+        yield return _fade.FadeOut(1f, 1);
 
         for(int i = cnt; i > 0; i--) {
-            HUD.SetCountdown(i);
+            _hud.DisplayLabelCenter(i);
             yield return new WaitForSeconds(1f);
         }
-        StartCoroutine(HUD.DisplayLabelCenterPeriod("START", 1f));
+        StartCoroutine(_hud.DisplayLabelCenterPeriod("START", 1f));
         _state = State.Started;
     }
 
     /// <summary>
-    /// Drag Start Method
+    /// Drag start method
     /// </summary>
     private void OnDragStart() {
         // Object Detection
-        var clickedObject = GetClickedObject();
+        var clickedObject = GetClickingObject();
         if(clickedObject == null) {
             return;
         }
         // TSUM Detection
-        foreach(var tsumPrefab in Prefab.Tsums) {
+        foreach(var tsumPrefab in _prefab.Tsums) {
             // Detected!!
             if(clickedObject.name.Contains(tsumPrefab.name)) {
                 AddClickedTsums(clickedObject);
@@ -150,6 +155,9 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Drag finished method
+    /// </summary>
     private void OnDragFinish() {
         // Delete clicked TSUM 
         if(_clickedTsums.Count >= MimTsumDelete) {
@@ -157,7 +165,6 @@ public class GameController : MonoBehaviour {
             ScoreModel.Instance.AddScore(_clickedTsums[0].GetComponent<SpriteRenderer>().sprite, _clickedTsums.Count);
 
             foreach(var tsum in _clickedTsums) {
-                //Destroy(tsum);
                 tsum.GetComponent<TsumController>().Dispose();
             }
         }
@@ -175,8 +182,11 @@ public class GameController : MonoBehaviour {
         _txtTsumTraceCnt.text = "";
     }
 
+    /// <summary>
+    /// Dragging method
+    /// </summary>
     private void OnDragging() {
-        var clickedObject = GetClickedObject();
+        var clickedObject = GetClickingObject();
         // not click
         if (clickedObject == null) {
             return;
@@ -220,7 +230,11 @@ public class GameController : MonoBehaviour {
         ShowTraceCnt();
     }
 
-    private GameObject GetClickedObject() {
+    /// <summary>
+    /// Get clicking object
+    /// </summary>
+    /// <returns>The object which is being clicked now</returns>
+    private GameObject GetClickingObject() {
         var raycastHitCollider = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero).collider;
         if (raycastHitCollider == null) {
             return null;
@@ -228,6 +242,11 @@ public class GameController : MonoBehaviour {
         return raycastHitCollider.gameObject;
         
     }
+
+    /// <summary>
+    /// Add clicked TSUM to clicked list
+    /// </summary>
+    /// <param name="tsum">clicked TSUM</param>
     private void AddClickedTsums(GameObject tsum) {
         // change transparent value
         ChangeTsumOpacity(tsum, 0.5f);
@@ -235,6 +254,10 @@ public class GameController : MonoBehaviour {
         _clickedTsums.Add(tsum);
     }
 
+    /// <summary>
+    /// Remove TSUM from clicked list
+    /// </summary>
+    /// <param name="tsum">remove TSUM</param>
     private void RemoveClickedTsums(GameObject tsum) {
         if(_clickedTsums.Contains(tsum)) {
             // change transparent value
@@ -243,26 +266,38 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Change TSUM's opacity
+    /// </summary>
+    /// <param name="tsum">Target TSUM</param>
+    /// <param name="a">Normalize opacity</param>
     private void ChangeTsumOpacity(GameObject tsum, float a) {
         var renderer = tsum.GetComponent<SpriteRenderer>();
         if(renderer != null) {
             renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, a);
         }
     } 
+
+    /// <summary>
+    /// Show the label indicating the number of tracing TSUMs
+    /// </summary>
     private void ShowTraceCnt() {
         _txtTsumTraceCnt.text = _clickedTsums.Count.ToString();
 
         var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        LabelTsumTraceCnt.transform.position = new Vector3(
+        _labelTsumTraceCnt.transform.position = new Vector3(
             mousePosition.x,
             mousePosition.y,
             0
             );
     }
 
+    /// <summary>
+    /// Change result-scene
+    /// </summary>
     private IEnumerator ChangeResultScene() {
-        yield return HUD.DisplayLabelCenterPeriod("FINISH", 2f);
-        yield return Fade.FadeIn(0.5f);
+        yield return _hud.DisplayLabelCenterPeriod("FINISH", 2f);
+        yield return _fade.FadeIn(0.5f);
 
         TSUMx2.SceneManager.LoadResultScene();
     }

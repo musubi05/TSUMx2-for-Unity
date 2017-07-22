@@ -6,26 +6,29 @@ using UnityEngine.UI;
 public class HUDController : CanvasMonoBehaviour {
     
     [SerializeField]
-    public Text LabelCenter;
+    private Text _labelCenter;
 
     [SerializeField]
-    public Text LabelScore;
+    private Text _labelScore;
 
     [SerializeField]
-    public Text LabelTime;
-    
-	// Use this for initialization
-	void Awake () {
+    private Text _labelTime;
+
+
+    void Awake () {
         AdjustCanvasScale();
 
-        LabelCenter.text = "";
-        LabelScore.text = "0";
-        LabelTime.text = GameController.TimeLimitSecond.ToString();
+        _labelCenter.text = "";
+        _labelScore.text = "0";
+        _labelTime.text = GameController.TimeLimitSecond.ToString();
 	}
 
+    /// <summary>
+    /// Use this for initialization
+    /// </summary>
     void Start() {
         ScoreModel.Instance.ChangeTotalScore += () => {
-            LabelScore.text = ScoreModel.Instance.TotalScore.ToString();
+            _labelScore.text = ScoreModel.Instance.TotalScore.ToString();
         };
     }
 	
@@ -34,24 +37,37 @@ public class HUDController : CanvasMonoBehaviour {
 		
 	}
 
-    public void SetCountdown(int time) {
+    /// <summary>
+    /// Display time at LabelCenter
+    /// </summary>
+    /// <param name="time">Time</param>
+    public void DisplayLabelCenter(int time) {
         if(time < 0) {
             return;
         }
         else if(time <= 5) {
-            LabelCenter.text = time.ToString();
+            _labelCenter.text = time.ToString();
         }
     }
 
+    /// <summary>
+    /// Change display time at LabelTime
+    /// </summary>
+    /// <param name="time">Time</param>
     public void ChangeTime(int time) {
         if (time >= 0) {
-            LabelTime.text = time.ToString();
+            _labelTime.text = time.ToString();
         }
     }
 
+    /// <summary>
+    /// Display text at LabelCenter and disappear automatically
+    /// </summary>
+    /// <param name="txt">Display text</param>
+    /// <param name="period">The period of appearance</param>
     public IEnumerator DisplayLabelCenterPeriod(string txt, float period) {
-        LabelCenter.text = txt;
+        _labelCenter.text = txt;
         yield return new WaitForSeconds(period);
-        LabelCenter.text = "";
+        _labelCenter.text = "";
     }
 }

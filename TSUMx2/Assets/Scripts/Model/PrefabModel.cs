@@ -5,7 +5,13 @@ using UnityEngine;
 public class PrefabModel : MonoBehaviour {
 
     [SerializeField]
-    public GameObject[] Tsums;
+    private GameObject[] _tsums;
+    
+    public GameObject[] Tsums {
+        get {
+            return _tsums;
+        }
+    }
 
     // Use this for initialization
     void Start () {
