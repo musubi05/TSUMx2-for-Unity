@@ -10,3 +10,4 @@ TSUMx2 for Unity
 - [SNIGLET](https://jp.ffonts.net/Sniglet-Regular.font.download)
 - [KY Magic Effects Free](https://www.assetstore.unity3d.com/jp/#!/content/21927)
 - [OutlineTextMesh](http://stereoarts.jp)
+- [FadeCamera2](https://github.com/tsubaki/FadeCamera2/)
