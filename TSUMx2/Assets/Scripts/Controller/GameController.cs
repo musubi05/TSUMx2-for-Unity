@@ -21,7 +21,7 @@ public class GameController : MonoBehaviour {
     [SerializeField]
     private Fade _fade;
     
-    public const int MimTsumDelete = 3;
+    public const int MinTsumDelete = 3;
     public const int TimeLimitSecond = 60;
     private const float _dropTsumHeight = 6.0f;
 
@@ -160,7 +160,7 @@ public class GameController : MonoBehaviour {
     /// </summary>
     private void OnDragFinish() {
         // Delete clicked TSUM 
-        if(_clickedTsums.Count >= MimTsumDelete) {
+        if(_clickedTsums.Count >= MinTsumDelete) {
             StartCoroutine(DropTsum(_clickedTsums.Count));
             ScoreModel.Instance.AddScore(_clickedTsums[0].GetComponent<SpriteRenderer>().sprite, _clickedTsums.Count);
 
