@@ -49,7 +49,7 @@ public class TsumController : MonoBehaviour {
     /// <summary>
     /// TSUM dispose (display effect and destroy itself)
     /// </summary>
-    public void Dispose() {
+    public void Destroy() {
         var particle = GetComponentInChildren<ParticleSystem>();
         if (particle != null) {
             particle.Play();

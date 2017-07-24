@@ -19,12 +19,12 @@ public class GameController : MonoBehaviour {
     private Fade _fade;
     
     public const int MinTsumDelete = 3;
-    public const int TimeLimitSecond = 5;
+    public const int TimeLimitSecond = 10;
     private const float _dropTsumHeight = 6.0f;
 
     private enum State {
-        NotStarted,
-        Started,
+        WaitingPlay,
+        Playing,
         Finished
     }
 
@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour {
         ScoreModel.Instance.ResetScore();
 
         // Start Countdown
-        _state = State.NotStarted;
+        _state = State.WaitingPlay;
         StartCoroutine(GameStart(3));
     }
 
@@ -62,7 +62,7 @@ public class GameController : MonoBehaviour {
     /// </summary>
     void Update () {
 
-        if(_state != State.Started) {
+        if(_state != State.Playing) {
             return;
         }
 
@@ -126,7 +126,7 @@ public class GameController : MonoBehaviour {
             yield return new WaitForSeconds(1f);
         }
         StartCoroutine(_hud.DisplayLabelCenterPeriod("START", 1f));
-        _state = State.Started;
+        _state = State.Playing;
     }
 
     /// <summary>
@@ -154,13 +154,13 @@ public class GameController : MonoBehaviour {
             ScoreModel.Instance.AddScore(_clickedTsums[0].TypeId, _clickedTsums.Count);
 
             foreach(var tsum in _clickedTsums) {
-                tsum.GetComponent<TsumController>().Dispose();
+                tsum.GetComponent<TsumController>().Destroy();
             }
         }
         // else ... reset TSUM color
         else {
             foreach(var tsum in _clickedTsums) {
-                ChangeTsumOpacity(tsum, 1);
+                RemoveClickedTsums(tsum, true);
             }
         }
         
@@ -252,11 +252,15 @@ public class GameController : MonoBehaviour {
     /// Remove TSUM from clicked list
     /// </summary>
     /// <param name="tsum">remove TSUM</param>
-    private void RemoveClickedTsums(TsumController tsum) {
+    /// <param name="isOnlyOpacity">Only change opacity (not remove it from list)</param>
+    private void RemoveClickedTsums(TsumController tsum, bool isOnlyOpacity = false) {
         if(_clickedTsums.Contains(tsum)) {
-            // change transparent value
+            // Change transparent value
             ChangeTsumOpacity(tsum, 1);
-            _clickedTsums.Remove(tsum);
+            // Remove
+            if (!isOnlyOpacity) {
+                _clickedTsums.Remove(tsum);
+            }
         }
     }
 
