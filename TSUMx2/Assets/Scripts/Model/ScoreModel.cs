@@ -5,8 +5,22 @@ using UnityEngine;
 [RequireComponent(typeof(PrefabModel))]
 public class ScoreModel : MonoBehaviour {
 
-    public delegate void ChangeTotalScoreEventHandler();
-    public delegate void AddedBonusScoreEventHandler(int score);
+    public class ScoreEventArgs {
+        public int TotalScore {
+            get;
+            private set;
+        }
+        public int DiffScore {
+            get;
+            private set;
+        }
+        public ScoreEventArgs(int totalScore, int diffScore) {
+            TotalScore = totalScore;
+            DiffScore = diffScore;
+        }
+    }
+    public delegate void ChangeTotalScoreEventHandler(ScoreEventArgs args);
+    public delegate void AddedBonusScoreEventHandler(ScoreEventArgs args);
     public event ChangeTotalScoreEventHandler ChangeTotalScore;
     public event AddedBonusScoreEventHandler AddedBonusScore;
 
@@ -22,11 +36,12 @@ public class ScoreModel : MonoBehaviour {
             return _totalScore;
         }
         private set {
-            _totalScore = value;
+            var diff = value - _totalScore;
             // Call Event
-            if(ChangeTotalScore != null) {
-                ChangeTotalScore();
+            if(ChangeTotalScore != null && diff > 0) {
+                ChangeTotalScore(new ScoreEventArgs(_totalScore, diff));
             }
+            _totalScore = value;
         }
     }
     private int _totalScore;
@@ -41,20 +56,18 @@ public class ScoreModel : MonoBehaviour {
             var diff = value - _bonusScore;
             // Call Event
             if (AddedBonusScore != null && diff > 0) {
-                AddedBonusScore(diff); // 今回"追加される"ボーナス点を表示
+                AddedBonusScore(new ScoreEventArgs(value, diff));
             }
             _bonusScore = value;
         }
     }
     private int _bonusScore;
     #endregion
-
-    #region TumsScore
+    
     public Dictionary<TsumTypeId, int> TsumsScore {
         get;
         private set;
     }
-    #endregion
 
     private PrefabModel _prefabModel;
 

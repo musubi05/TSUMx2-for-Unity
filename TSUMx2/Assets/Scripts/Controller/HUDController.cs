@@ -34,10 +34,10 @@ public class HUDController : CanvasMonoBehaviour {
     /// Use this for initialization
     /// </summary>
     void Start() {
-        ScoreModel.Instance.ChangeTotalScore += () => {
+        ScoreModel.Instance.ChangeTotalScore += (args) => {
             _labelScore.text = ScoreModel.Instance.TotalScore.ToString();
         };
-        ScoreModel.Instance.AddedBonusScore += (cnt) => {
+        ScoreModel.Instance.AddedBonusScore += (args) => {
             if (_labelBonusCoroutine != null) {
                 StopCoroutine(_labelBonusCoroutine);
                 _labelBonusCoroutine = null;
