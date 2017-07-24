@@ -7,9 +7,6 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour {
 
     [SerializeField]
-    private PrefabModel _prefab;
-
-    [SerializeField]
     private HUDController _hud;
 
     [SerializeField]
@@ -22,7 +19,7 @@ public class GameController : MonoBehaviour {
     private Fade _fade;
     
     public const int MinTsumDelete = 3;
-    public const int TimeLimitSecond = 60;
+    public const int TimeLimitSecond = 5;
     private const float _dropTsumHeight = 6.0f;
 
     private enum State {
@@ -33,8 +30,7 @@ public class GameController : MonoBehaviour {
 
     private bool _isClicked = false;
     private State _state;
-    private List<GameObject> _clickedTsums;
-    private GameObject _lastClickedTsum;
+    private List<TsumController> _clickedTsums;
     private TextMesh _txtTsumTraceCnt;
 
     private float _time;
@@ -43,7 +39,7 @@ public class GameController : MonoBehaviour {
     /// Use this for initialization
     /// </summary>
     void Start () {
-        _clickedTsums = new List<GameObject>();
+        _clickedTsums = new List<TsumController>();
 
         // TSUM Drop
         StartCoroutine(DropTsum(_dropTsumCnt));
@@ -102,7 +98,7 @@ public class GameController : MonoBehaviour {
     /// <param name="cnt">The number of TSUMs</param>
     IEnumerator DropTsum(int cnt) {
         for(int i = 0; i < cnt; i++) {
-            var tsum = Instantiate(_prefab.Tsums[Random.Range(0, _prefab.Tsums.Length)]);
+            var tsum = PrefabModel.Instance.CreateTsum();
             tsum.transform.position = new Vector3(
                 Random.Range(-1.5f, 1.5f),
                 _dropTsumHeight,
@@ -137,22 +133,15 @@ public class GameController : MonoBehaviour {
     /// Drag start method
     /// </summary>
     private void OnDragStart() {
-        // Object Detection
-        var clickedObject = GetClickingObject();
-        if(clickedObject == null) {
+        // TSUM Detection
+        var clickedTsum = GetClickingTsum();
+        if(clickedTsum == null) {
             return;
         }
-        // TSUM Detection
-        foreach(var tsumPrefab in _prefab.Tsums) {
-            // Detected!!
-            if(clickedObject.name.Contains(tsumPrefab.name)) {
-                AddClickedTsums(clickedObject);
-                _lastClickedTsum = clickedObject;
-                _isClicked = true;
-                ShowTraceCnt();
-                return;
-            }
-        }
+
+        AddClickedTsums(clickedTsum);
+        _isClicked = true;
+        ShowTraceCnt();
     }
 
     /// <summary>
@@ -162,7 +151,7 @@ public class GameController : MonoBehaviour {
         // Delete clicked TSUM 
         if(_clickedTsums.Count >= MinTsumDelete) {
             StartCoroutine(DropTsum(_clickedTsums.Count));
-            ScoreModel.Instance.AddScore(_clickedTsums[0].GetComponent<SpriteRenderer>().sprite, _clickedTsums.Count);
+            ScoreModel.Instance.AddScore(_clickedTsums[0].TypeId, _clickedTsums.Count);
 
             foreach(var tsum in _clickedTsums) {
                 tsum.GetComponent<TsumController>().Dispose();
@@ -178,7 +167,6 @@ public class GameController : MonoBehaviour {
         // Reset
         _isClicked = false;
         _clickedTsums.Clear();
-        _lastClickedTsum = null;
         _txtTsumTraceCnt.text = "";
     }
 
@@ -186,36 +174,30 @@ public class GameController : MonoBehaviour {
     /// Dragging method
     /// </summary>
     private void OnDragging() {
-        var clickedObject = GetClickingObject();
+        var clickedTsum = GetClickingTsum();
         // not click
-        if (clickedObject == null) {
+        if (clickedTsum == null) {
             return;
         }
-        // not tsum
-        if (clickedObject.GetComponent<SpriteRenderer>() == null) {
-            return;
-        }
-         // defferent type
-        var clickedSprite = _clickedTsums[0].GetComponent<SpriteRenderer>().sprite;
-        if(clickedObject.GetComponent<SpriteRenderer>().sprite != clickedSprite) {
+        // defferent type
+        if(clickedTsum.TypeId != _clickedTsums[0].TypeId) {
             return; 
         }
         // back track
-        if(_clickedTsums.Count >= 2 && _clickedTsums[_clickedTsums.Count - 2] == clickedObject) {
-            RemoveClickedTsums(_lastClickedTsum);
-            _lastClickedTsum = _clickedTsums[_clickedTsums.Count - 1];
+        if(_clickedTsums.Count >= 2 && _clickedTsums[_clickedTsums.Count - 2] == clickedTsum) {
+            RemoveClickedTsums(_clickedTsums[_clickedTsums.Count - 1]);
             ShowTraceCnt();
             return;
         }
         // already exist
-        if(_clickedTsums.Contains(clickedObject)) {
+        if(_clickedTsums.Contains(clickedTsum)) {
             return;
         }
 
         // Check to straddle another color's TSUMs
-        Vector2 tsumsVector = clickedObject.transform.position - _lastClickedTsum.transform.position;
+        Vector2 tsumsVector = clickedTsum.gameObject.transform.position - _clickedTsums[_clickedTsums.Count - 1].gameObject.transform.position;
         var raycastHitCollider = Physics2D.RaycastAll(
-            _lastClickedTsum.transform.position,
+            _clickedTsums[_clickedTsums.Count - 1].gameObject.transform.position,
              tsumsVector,
              tsumsVector.magnitude
             );
@@ -225,8 +207,7 @@ public class GameController : MonoBehaviour {
             return;
         }
 
-        AddClickedTsums(clickedObject);
-        _lastClickedTsum = clickedObject;
+        AddClickedTsums(clickedTsum);
         ShowTraceCnt();
     }
 
@@ -239,15 +220,28 @@ public class GameController : MonoBehaviour {
         if (raycastHitCollider == null) {
             return null;
         }
-        return raycastHitCollider.gameObject;
+        return raycastHitCollider.gameObject;   
+    }
+    
+    /// <summary>
+    /// Get clicking Tsum
+    /// </summary>
+    /// <returns>The tsum which is begin clicked not (null...Not TSUM)</returns>
+    private TsumController GetClickingTsum() {
+        var clickingObject = GetClickingObject();
         
+        if(clickingObject == null) {
+            return null;
+        }
+
+        return clickingObject.GetComponent<TsumController>();
     }
 
     /// <summary>
     /// Add clicked TSUM to clicked list
     /// </summary>
     /// <param name="tsum">clicked TSUM</param>
-    private void AddClickedTsums(GameObject tsum) {
+    private void AddClickedTsums(TsumController tsum) {
         // change transparent value
         ChangeTsumOpacity(tsum, 0.5f);
         // add list
@@ -258,7 +252,7 @@ public class GameController : MonoBehaviour {
     /// Remove TSUM from clicked list
     /// </summary>
     /// <param name="tsum">remove TSUM</param>
-    private void RemoveClickedTsums(GameObject tsum) {
+    private void RemoveClickedTsums(TsumController tsum) {
         if(_clickedTsums.Contains(tsum)) {
             // change transparent value
             ChangeTsumOpacity(tsum, 1);
@@ -271,8 +265,8 @@ public class GameController : MonoBehaviour {
     /// </summary>
     /// <param name="tsum">Target TSUM</param>
     /// <param name="a">Normalize opacity</param>
-    private void ChangeTsumOpacity(GameObject tsum, float a) {
-        var renderer = tsum.GetComponent<SpriteRenderer>();
+    private void ChangeTsumOpacity(TsumController tsum, float a) {
+        var renderer = tsum.gameObject.GetComponent<SpriteRenderer>();
         if(renderer != null) {
             renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, a);
         }

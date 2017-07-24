@@ -11,10 +11,12 @@ public class ScoreTableController : MonoBehaviour {
     [SerializeField]
     private GameObject _tsumScoreCellPrefab;
 
+    private PrefabModel _prefab;
     private ScoreModel _score;
 
 	// Use this for initialization
 	void Start () {
+        _prefab = PrefabModel.Instance;
         _score = ScoreModel.Instance;
 
         // Add Total Score Cell
@@ -27,10 +29,10 @@ public class ScoreTableController : MonoBehaviour {
         AddBasicCell("", "");
 
         // Add TSUM's Score Cell
-        foreach (var scoreKey in _score.TsumsScore.Keys) {
+        foreach (var key in _score.TsumsScore.Keys) {
             var cell = Instantiate(_tsumScoreCellPrefab);
-            cell.GetComponentInChildren<Image>().sprite = scoreKey;
-            cell.GetComponentInChildren<Text>().text = _score.TsumsScore[scoreKey].ToString();
+            cell.GetComponentInChildren<Image>().sprite = _prefab.Tsums[key].GetComponent<TsumController>().Sprite;
+            cell.GetComponentInChildren<Text>().text = _score.TsumsScore[key].ToString();
             cell.transform.SetParent(this.gameObject.transform, false);
         }
 	}

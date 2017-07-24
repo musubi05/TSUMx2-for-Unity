@@ -2,7 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public class TsumController : MonoBehaviour {
+
+    /// <summary>
+    /// TSUM Type Id
+    /// </summary>
+    public TsumTypeId TypeId {
+        get;
+        private set;
+    }
+
+    public Sprite Sprite {
+        get {
+            return GetComponent<SpriteRenderer>().sprite;
+        }
+    }
+
+    private bool _isNotSetId = true;
 
 	// Use this for initialization
 	void Start () {
@@ -13,6 +30,21 @@ public class TsumController : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    /// <summary>
+    /// Set TSUM Type-Id
+    /// </summary>
+    /// <param name="typeId">Type id</param>
+    /// <returns>true...Ok, false...Already set</returns>
+    public bool SetId(TsumTypeId typeId) {
+        if(!_isNotSetId) {
+            return false;
+        }
+
+        TypeId = typeId;
+        _isNotSetId = false;
+        return true;
+    }
 
     /// <summary>
     /// TSUM dispose (display effect and destroy itself)

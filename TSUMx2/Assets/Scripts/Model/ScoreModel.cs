@@ -50,7 +50,7 @@ public class ScoreModel : MonoBehaviour {
     #endregion
 
     #region TumsScore
-    public Dictionary<Sprite, int> TsumsScore {
+    public Dictionary<TsumTypeId, int> TsumsScore {
         get;
         private set;
     }
@@ -73,22 +73,21 @@ public class ScoreModel : MonoBehaviour {
             return;
         }
 
-        TsumsScore = new Dictionary<Sprite, int>();
+        TsumsScore = new Dictionary<TsumTypeId, int>();
         _prefabModel = GetComponent<PrefabModel>();
-
-        // Initialze TSUM score list
-        foreach (var tsum in _prefabModel.Tsums) {
-            var sprite = tsum.GetComponent<SpriteRenderer>().sprite;
-
-            if (!TsumsScore.ContainsKey(sprite)) {
-                TsumsScore.Add(sprite, 0);
-            }
-        }
     }
 
     // Use this for initialization
     void Start () {
-
+        // Initialze TSUM score list
+        if (_prefabModel == null) {
+            return;
+        }
+        foreach(var id in _prefabModel.Tsums.Keys) {
+            if(!TsumsScore.ContainsKey(id)) {
+                TsumsScore.Add(id, 0);
+            }
+        }
 	}
 	
 	// Update is called once per frame
@@ -100,8 +99,8 @@ public class ScoreModel : MonoBehaviour {
     /// Reset all score
     /// </summary>
     public void ResetScore() {
-        List<Sprite> keys = new List<Sprite>(TsumsScore.Keys);
-        foreach(Sprite key in keys) {
+        var keys = new List<TsumTypeId>(TsumsScore.Keys);
+        foreach(var key in keys) {
             TsumsScore[key] = 0;
         }
         TotalScore = 0;
@@ -111,15 +110,15 @@ public class ScoreModel : MonoBehaviour {
     /// <summary>
     /// Add score
     /// </summary>
-    /// <param name="tsumSprite">deleted TSUM's sprite</param>
+    /// <param name="tsumId">deleted TSUM's type-id</param>
     /// <param name="deletedCnt">The number of deleted TSUMs</param>
-    public void AddScore(Sprite tsumSprite, int deletedCnt) {
+    public void AddScore(TsumTypeId tsumId, int deletedCnt) {
         TotalScore += deletedCnt;
-        if(TsumsScore.ContainsKey(tsumSprite)) {
-            TsumsScore[tsumSprite] += deletedCnt;
+        if(TsumsScore.ContainsKey(tsumId)) {
+            TsumsScore[tsumId] += deletedCnt;
         }
         else {
-            TsumsScore.Add(tsumSprite, deletedCnt);
+            TsumsScore.Add(tsumId, deletedCnt);
         }
         // Add Bonus Score
         AddBonusScore(deletedCnt);
