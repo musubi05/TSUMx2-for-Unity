@@ -18,9 +18,7 @@ public class GameController : MonoBehaviour {
     [SerializeField]
     private Fade _fade;
     
-    public const int MinTsumDelete = 3;
-    public const int TimeLimitSecond = 10;
-    private const float _dropTsumHeight = 6.0f;
+    private const float _dropTsumHeight = 5.0f;
 
     private enum State {
         WaitingPlay,
@@ -49,12 +47,12 @@ public class GameController : MonoBehaviour {
         _txtTsumTraceCnt.text = "";
 
         // Initialize
-        _time = TimeLimitSecond;
+        _time = TSUMx2.Shared.Values.GameOverSeconds;
         ScoreModel.Instance.ResetScore();
 
         // Start Countdown
         _state = State.WaitingPlay;
-        StartCoroutine(GameStart(3));
+        StartCoroutine(GameStart(TSUMx2.Shared.Values.StartCountdown));
     }
 
     /// <summary>
@@ -75,20 +73,20 @@ public class GameController : MonoBehaviour {
             StartCoroutine(ChangeResultScene());
         }
         // Finish countdown
-        else if((int)_time < 5) {
+        else if((int)_time < TSUMx2.Shared.Values.FinishCountdown) {
             _hud.DisplayLabelCenter(((int)_time).ToString());
         }
 
         // TSUM Click/Drag Detection
         if (Input.GetMouseButton(0)) {
-            if (_isClicked == false) {
-                OnDragStart();
-            }
-            else {
+            if (_isClicked) {
                 OnDragging();
             }
+            else {
+                OnDragStart();
+            }
         }
-        else if(Input.GetMouseButtonUp(0) && _isClicked == true) {
+        else if(Input.GetMouseButtonUp(0) && _isClicked) {
             OnDragFinish();
         }
 	}
@@ -150,7 +148,7 @@ public class GameController : MonoBehaviour {
     /// </summary>
     private void OnDragFinish() {
         // Delete clicked TSUM 
-        if(_clickedTsums.Count >= MinTsumDelete) {
+        if(_clickedTsums.Count >= TSUMx2.Shared.Values.MinTsumDelete) {
             StartCoroutine(DropTsum(_clickedTsums.Count));
             ScoreModel.Instance.AddScore(_clickedTsums[0].TypeId, _clickedTsums.Count);
 

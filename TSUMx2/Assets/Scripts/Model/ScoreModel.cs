@@ -144,7 +144,7 @@ public class ScoreModel : MonoBehaviour {
     private void AddBonusScore(int deletedCnt) {
         int bonusScore = 0;
 
-        if(deletedCnt <= GameController.MinTsumDelete) {
+        if(deletedCnt <= TSUMx2.Shared.Values.MinTsumDelete) {
             return;
         }
 
@@ -153,7 +153,7 @@ public class ScoreModel : MonoBehaviour {
             bonusScore = deletedCnt * 10;
         }
         else {
-            bonusScore = deletedCnt * (deletedCnt - GameController.MinTsumDelete);
+            bonusScore = deletedCnt * (deletedCnt - TSUMx2.Shared.Values.MinTsumDelete);
         }
         // Add Score
         BonusScore += bonusScore;

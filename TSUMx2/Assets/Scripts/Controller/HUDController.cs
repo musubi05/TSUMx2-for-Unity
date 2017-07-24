@@ -25,7 +25,7 @@ public class HUDController : CanvasMonoBehaviour {
 
         _labelCenter.text = "";
         _labelScore.text = "0";
-        _labelTime.text = GameController.TimeLimitSecond.ToString();
+        _labelTime.text = TSUMx2.Shared.Values.GameOverSeconds.ToString();
 
         _labelBonus.gameObject.SetActive(false);
     }
