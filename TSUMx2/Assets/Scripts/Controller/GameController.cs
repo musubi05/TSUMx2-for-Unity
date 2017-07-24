@@ -74,8 +74,9 @@ public class GameController : MonoBehaviour {
             _state = State.Finished;
             StartCoroutine(ChangeResultScene());
         }
-        else {
-            _hud.DisplayLabelCenter((int)_time);
+        // Finish countdown
+        else if((int)_time < 5) {
+            _hud.DisplayLabelCenter(((int)_time).ToString());
         }
 
         // TSUM Click/Drag Detection
@@ -122,10 +123,10 @@ public class GameController : MonoBehaviour {
         yield return _fade.FadeOut(1f, 1);
 
         for(int i = cnt; i > 0; i--) {
-            _hud.DisplayLabelCenter(i);
+            _hud.DisplayLabelCenter(i.ToString());
             yield return new WaitForSeconds(1f);
         }
-        StartCoroutine(_hud.DisplayLabelCenterPeriod("START", 1f));
+        _hud.DisplayLabelCenter("START", 1f);
         _state = State.Playing;
     }
 
@@ -294,7 +295,7 @@ public class GameController : MonoBehaviour {
     /// Change result-scene
     /// </summary>
     private IEnumerator ChangeResultScene() {
-        yield return _hud.DisplayLabelCenterPeriod("FINISH", 2f);
+        yield return _hud.DisplayLabelCenterWait("FINISH", 2f);
         yield return _fade.FadeIn(0.5f);
 
         TSUMx2.SceneManager.LoadResultScene();

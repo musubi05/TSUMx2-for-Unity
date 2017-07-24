@@ -55,13 +55,31 @@ public class HUDController : CanvasMonoBehaviour {
     /// Display time at LabelCenter
     /// </summary>
     /// <param name="time">Time</param>
-    public void DisplayLabelCenter(int time) {
-        if(time < 0) {
-            return;
+    /// 
+    public void DisplayLabelCenter(string txt) {
+        DisplayLabelCenter(txt, -1);
+    }
+
+    /// <summary>
+    /// Display text at LabelCenter and disappear automatically
+    /// </summary>
+    /// <param name="txt">Display text</param>
+    /// <param name="period">The period of appearance</param>
+    public void DisplayLabelCenter(string txt, float period) {
+        _labelCenter.text = txt;
+        if(period >= 0) {
+            StartCoroutine(DisappearLabelCenterPeriod(period));
         }
-        else if(time <= 5) {
-            _labelCenter.text = time.ToString();
-        }
+    }
+
+    /// <summary>
+    /// Display text at LabelCenter and disappear automatically (Wait to disappear)
+    /// </summary>
+    /// <param name="txt">Display text</param>
+    /// <param name="period">The period of appearance</param>
+    public IEnumerator DisplayLabelCenterWait(string txt, float period) {
+        _labelCenter.text = txt;
+        yield return StartCoroutine(DisappearLabelCenterPeriod(period));
     }
 
     /// <summary>
@@ -75,15 +93,14 @@ public class HUDController : CanvasMonoBehaviour {
     }
 
     /// <summary>
-    /// Display text at LabelCenter and disappear automatically
+    /// Disappear labelCenter
     /// </summary>
-    /// <param name="txt">Display text</param>
     /// <param name="period">The period of appearance</param>
-    public IEnumerator DisplayLabelCenterPeriod(string txt, float period) {
-        _labelCenter.text = txt;
+    private IEnumerator DisappearLabelCenterPeriod(float period) {
         yield return new WaitForSeconds(period);
         _labelCenter.text = "";
     }
+
     /// <summary>
     /// Display LabelBonus with frame in/out animation
     /// </summary>
