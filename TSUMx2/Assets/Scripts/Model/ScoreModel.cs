@@ -37,11 +37,11 @@ public class ScoreModel : MonoBehaviour {
         }
         private set {
             var diff = value - _totalScore;
+            _totalScore = value;
             // Call Event
-            if(ChangeTotalScore != null && diff > 0) {
+            if (ChangeTotalScore != null && diff > 0) {
                 ChangeTotalScore(new ScoreEventArgs(_totalScore, diff));
             }
-            _totalScore = value;
         }
     }
     private int _totalScore;
@@ -54,11 +54,11 @@ public class ScoreModel : MonoBehaviour {
         }
         private set {
             var diff = value - _bonusScore;
+            _bonusScore = value;
             // Call Event
             if (AddedBonusScore != null && diff > 0) {
-                AddedBonusScore(new ScoreEventArgs(value, diff));
+                AddedBonusScore(new ScoreEventArgs(_bonusScore, diff));
             }
-            _bonusScore = value;
         }
     }
     private int _bonusScore;

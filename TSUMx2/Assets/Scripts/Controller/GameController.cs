@@ -69,8 +69,10 @@ public class GameController : MonoBehaviour {
 
         // GAME OVER
         if ((int)_time <= 0) {
+            OnDragFinish();
             _state = State.Finished;
             StartCoroutine(ChangeResultScene());
+            return;
         }
         // Finish countdown
         else if((int)_time < TSUMx2.Shared.Values.FinishCountdown) {

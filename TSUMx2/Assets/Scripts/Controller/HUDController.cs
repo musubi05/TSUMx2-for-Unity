@@ -23,10 +23,6 @@ public class HUDController : CanvasMonoBehaviour {
     void Awake () {
         AdjustCanvasScale();
 
-        _labelCenter.text = "";
-        _labelScore.text = "0";
-        _labelTime.text = TSUMx2.Shared.Values.GameOverSeconds.ToString();
-
         _labelBonus.gameObject.SetActive(false);
     }
 
@@ -45,6 +41,10 @@ public class HUDController : CanvasMonoBehaviour {
             _labelBonusCoroutine = DisplayLabelBonus(1f);
             StartCoroutine(_labelBonusCoroutine);
         };
+
+        _labelCenter.text = "";
+        _labelScore.text = 0.ToString();
+        _labelTime.text = TSUMx2.Shared.Values.GameOverSeconds.ToString();
     }
 	
 	// Update is called once per frame

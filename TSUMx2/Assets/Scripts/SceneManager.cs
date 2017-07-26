@@ -13,7 +13,6 @@
         /// </summary>
         public static void LoadGameScene() {
             UnityEngine.SceneManagement.SceneManager.LoadScene("main");
-
         }
 
         /// <summary>
@@ -21,7 +20,6 @@
         /// </summary>
         public static void LoadResultScene() {
             UnityEngine.SceneManagement.SceneManager.LoadScene("result");
-
         }
     }
 }
