@@ -5,8 +5,22 @@ using UnityEngine;
 [RequireComponent(typeof(PrefabModel))]
 public class ScoreModel : MonoBehaviour {
 
-    public delegate void ChangeTotalScoreEventHandler();
-    public delegate void AddedBonusScoreEventHandler(int score);
+    public class ScoreEventArgs {
+        public int TotalScore {
+            get;
+            private set;
+        }
+        public int DiffScore {
+            get;
+            private set;
+        }
+        public ScoreEventArgs(int totalScore, int diffScore) {
+            TotalScore = totalScore;
+            DiffScore = diffScore;
+        }
+    }
+    public delegate void ChangeTotalScoreEventHandler(ScoreEventArgs args);
+    public delegate void AddedBonusScoreEventHandler(ScoreEventArgs args);
     public event ChangeTotalScoreEventHandler ChangeTotalScore;
     public event AddedBonusScoreEventHandler AddedBonusScore;
 
@@ -22,10 +36,11 @@ public class ScoreModel : MonoBehaviour {
             return _totalScore;
         }
         private set {
+            var diff = value - _totalScore;
             _totalScore = value;
             // Call Event
-            if(ChangeTotalScore != null) {
-                ChangeTotalScore();
+            if (ChangeTotalScore != null && diff > 0) {
+                ChangeTotalScore(new ScoreEventArgs(_totalScore, diff));
             }
         }
     }
@@ -39,22 +54,20 @@ public class ScoreModel : MonoBehaviour {
         }
         private set {
             var diff = value - _bonusScore;
+            _bonusScore = value;
             // Call Event
             if (AddedBonusScore != null && diff > 0) {
-                AddedBonusScore(diff); // 今回"追加される"ボーナス点を表示
+                AddedBonusScore(new ScoreEventArgs(_bonusScore, diff));
             }
-            _bonusScore = value;
         }
     }
     private int _bonusScore;
     #endregion
-
-    #region TumsScore
-    public Dictionary<Sprite, int> TsumsScore {
+    
+    public Dictionary<TsumTypeId, int> TsumsScore {
         get;
         private set;
     }
-    #endregion
 
     private PrefabModel _prefabModel;
 
@@ -73,22 +86,21 @@ public class ScoreModel : MonoBehaviour {
             return;
         }
 
-        TsumsScore = new Dictionary<Sprite, int>();
+        TsumsScore = new Dictionary<TsumTypeId, int>();
         _prefabModel = GetComponent<PrefabModel>();
-
-        // Initialze TSUM score list
-        foreach (var tsum in _prefabModel.Tsums) {
-            var sprite = tsum.GetComponent<SpriteRenderer>().sprite;
-
-            if (!TsumsScore.ContainsKey(sprite)) {
-                TsumsScore.Add(sprite, 0);
-            }
-        }
     }
 
     // Use this for initialization
     void Start () {
-
+        // Initialze TSUM score list
+        if (_prefabModel == null) {
+            return;
+        }
+        foreach(var id in _prefabModel.Tsums.Keys) {
+            if(!TsumsScore.ContainsKey(id)) {
+                TsumsScore.Add(id, 0);
+            }
+        }
 	}
 	
 	// Update is called once per frame
@@ -100,8 +112,8 @@ public class ScoreModel : MonoBehaviour {
     /// Reset all score
     /// </summary>
     public void ResetScore() {
-        List<Sprite> keys = new List<Sprite>(TsumsScore.Keys);
-        foreach(Sprite key in keys) {
+        var keys = new List<TsumTypeId>(TsumsScore.Keys);
+        foreach(var key in keys) {
             TsumsScore[key] = 0;
         }
         TotalScore = 0;
@@ -111,15 +123,15 @@ public class ScoreModel : MonoBehaviour {
     /// <summary>
     /// Add score
     /// </summary>
-    /// <param name="tsumSprite">deleted TSUM's sprite</param>
+    /// <param name="tsumId">deleted TSUM's type-id</param>
     /// <param name="deletedCnt">The number of deleted TSUMs</param>
-    public void AddScore(Sprite tsumSprite, int deletedCnt) {
+    public void AddScore(TsumTypeId tsumId, int deletedCnt) {
         TotalScore += deletedCnt;
-        if(TsumsScore.ContainsKey(tsumSprite)) {
-            TsumsScore[tsumSprite] += deletedCnt;
+        if(TsumsScore.ContainsKey(tsumId)) {
+            TsumsScore[tsumId] += deletedCnt;
         }
         else {
-            TsumsScore.Add(tsumSprite, deletedCnt);
+            TsumsScore.Add(tsumId, deletedCnt);
         }
         // Add Bonus Score
         AddBonusScore(deletedCnt);
@@ -132,7 +144,7 @@ public class ScoreModel : MonoBehaviour {
     private void AddBonusScore(int deletedCnt) {
         int bonusScore = 0;
 
-        if(deletedCnt <= GameController.MimTsumDelete) {
+        if(deletedCnt <= TSUMx2.Shared.Values.MinTsumDelete) {
             return;
         }
 
@@ -141,7 +153,7 @@ public class ScoreModel : MonoBehaviour {
             bonusScore = deletedCnt * 10;
         }
         else {
-            bonusScore = deletedCnt * (deletedCnt - GameController.MimTsumDelete);
+            bonusScore = deletedCnt * (deletedCnt - TSUMx2.Shared.Values.MinTsumDelete);
         }
         // Add Score
         BonusScore += bonusScore;

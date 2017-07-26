@@ -23,10 +23,6 @@ public class HUDController : CanvasMonoBehaviour {
     void Awake () {
         AdjustCanvasScale();
 
-        _labelCenter.text = "";
-        _labelScore.text = "0";
-        _labelTime.text = GameController.TimeLimitSecond.ToString();
-
         _labelBonus.gameObject.SetActive(false);
     }
 
@@ -34,10 +30,10 @@ public class HUDController : CanvasMonoBehaviour {
     /// Use this for initialization
     /// </summary>
     void Start() {
-        ScoreModel.Instance.ChangeTotalScore += () => {
+        ScoreModel.Instance.ChangeTotalScore += (args) => {
             _labelScore.text = ScoreModel.Instance.TotalScore.ToString();
         };
-        ScoreModel.Instance.AddedBonusScore += (cnt) => {
+        ScoreModel.Instance.AddedBonusScore += (args) => {
             if (_labelBonusCoroutine != null) {
                 StopCoroutine(_labelBonusCoroutine);
                 _labelBonusCoroutine = null;
@@ -45,6 +41,10 @@ public class HUDController : CanvasMonoBehaviour {
             _labelBonusCoroutine = DisplayLabelBonus(1f);
             StartCoroutine(_labelBonusCoroutine);
         };
+
+        _labelCenter.text = "";
+        _labelScore.text = 0.ToString();
+        _labelTime.text = TSUMx2.Shared.Values.GameOverSeconds.ToString();
     }
 	
 	// Update is called once per frame
@@ -55,13 +55,31 @@ public class HUDController : CanvasMonoBehaviour {
     /// Display time at LabelCenter
     /// </summary>
     /// <param name="time">Time</param>
-    public void DisplayLabelCenter(int time) {
-        if(time < 0) {
-            return;
+    /// 
+    public void DisplayLabelCenter(string txt) {
+        DisplayLabelCenter(txt, -1);
+    }
+
+    /// <summary>
+    /// Display text at LabelCenter and disappear automatically
+    /// </summary>
+    /// <param name="txt">Display text</param>
+    /// <param name="period">The period of appearance</param>
+    public void DisplayLabelCenter(string txt, float period) {
+        _labelCenter.text = txt;
+        if(period >= 0) {
+            StartCoroutine(DisappearLabelCenterPeriod(period));
         }
-        else if(time <= 5) {
-            _labelCenter.text = time.ToString();
-        }
+    }
+
+    /// <summary>
+    /// Display text at LabelCenter and disappear automatically (Wait to disappear)
+    /// </summary>
+    /// <param name="txt">Display text</param>
+    /// <param name="period">The period of appearance</param>
+    public IEnumerator DisplayLabelCenterWait(string txt, float period) {
+        _labelCenter.text = txt;
+        yield return StartCoroutine(DisappearLabelCenterPeriod(period));
     }
 
     /// <summary>
@@ -75,15 +93,14 @@ public class HUDController : CanvasMonoBehaviour {
     }
 
     /// <summary>
-    /// Display text at LabelCenter and disappear automatically
+    /// Disappear labelCenter
     /// </summary>
-    /// <param name="txt">Display text</param>
     /// <param name="period">The period of appearance</param>
-    public IEnumerator DisplayLabelCenterPeriod(string txt, float period) {
-        _labelCenter.text = txt;
+    private IEnumerator DisappearLabelCenterPeriod(float period) {
         yield return new WaitForSeconds(period);
         _labelCenter.text = "";
     }
+
     /// <summary>
     /// Display LabelBonus with frame in/out animation
     /// </summary>
