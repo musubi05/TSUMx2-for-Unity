@@ -19,11 +19,16 @@ public class TsumController : MonoBehaviour {
         }
     }
 
+    public bool IsDestroying {
+        get;
+        private set;
+    }
+
     private bool _isNotSetId = true;
 
 	// Use this for initialization
 	void Start () {
-		
+        IsDestroying = false;
 	}
 	
 	// Update is called once per frame
@@ -50,6 +55,8 @@ public class TsumController : MonoBehaviour {
     /// TSUM dispose (display effect and destroy itself)
     /// </summary>
     public void Destroy() {
+        IsDestroying = true;
+
         var particle = GetComponentInChildren<ParticleSystem>();
         if (particle != null) {
             particle.Play();

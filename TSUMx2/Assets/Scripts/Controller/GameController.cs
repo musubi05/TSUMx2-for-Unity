@@ -177,7 +177,7 @@ public class GameController : MonoBehaviour {
     private void OnDragging() {
         var clickedTsum = GetClickingTsum();
         // not click
-        if (clickedTsum == null) {
+        if (clickedTsum == null || _clickedTsums.Count == 0) {
             return;
         }
         // defferent type
@@ -234,8 +234,14 @@ public class GameController : MonoBehaviour {
         if(clickingObject == null) {
             return null;
         }
-
-        return clickingObject.GetComponent<TsumController>();
+        var tsum = clickingObject.GetComponent<TsumController>();
+        if(tsum == null) {
+            return null;
+        }
+        if(tsum.IsDestroying) {
+            return null;
+        }
+        return tsum;
     }
 
     /// <summary>
